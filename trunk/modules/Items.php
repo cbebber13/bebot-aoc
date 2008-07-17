@@ -104,7 +104,7 @@ class Itemsdb extends BaseActiveModule
 	*/
 	function submit($msg, $group = "tell", $name)
 	{
-		if (preg_match_all("/(<a style=\"text-decoration:none\" href=\"itemref:\/\/([0-9]*)\/([0-9]*)\/([0-9]*)\/([0-9a-f]*\:[0-9a-f]*\:[0-9a-f]*:[0-9a-f]*)\/([0-9a-f]*\:[0-9a-f]*\:[0-9a-f]*:[0-9a-f]*)\"><font color=html_link_color>\[([a-zA-Z0-9_'&\s]*)\]<\/font><\/a>)/i",$msg,$matches,PREG_SET_ORDER))
+		if (preg_match_all("/(<a style=\"text-decoration:none\" href=\"itemref:\/\/([0-9]*)\/([0-9]*)\/([0-9]*)\/([0-9a-f]*\:[0-9a-f]*\:[0-9a-f]*:[0-9a-f]*)\/([0-9a-f]*\:[0-9a-f]*\:[0-9a-f]*:[0-9a-f]*)\"><font[^>]+>\[([a-zA-Z0-9_'&\s]*)\]<\/font><\/a>)/i",$msg,$matches,PREG_SET_ORDER))
 		{
 			foreach ($matches as $match)
 			{

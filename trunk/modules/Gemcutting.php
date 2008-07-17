@@ -55,7 +55,7 @@ class Gemcut extends BaseActiveModule
 	*/
 	function identify($msg)
         {
-		if (preg_match("/.*<a style=\"text-decoration:none\" href=\"itemref:\/\/([0-9]*)\/([0-9]*)\/([0-9]*)\/([0-9a-f]*\:[0-9a-f]*\:[0-9a-f]*:[0-9a-f]*)\/([0-9a-f]*\:[0-9a-f]*\:[0-9a-f]*:[0-9a-f]*)\"><font color=html_link_color>\[(.*)\]<\/font>.*/i",$msg,$matches))
+		if (preg_match("/.*<a style=\"text-decoration:none\" href=\"itemref:\/\/([0-9]*)\/([0-9]*)\/([0-9]*)\/([0-9a-f]*\:[0-9a-f]*\:[0-9a-f]*:[0-9a-f]*)\/([0-9a-f]*\:[0-9a-f]*\:[0-9a-f]*:[0-9a-f]*)\"><font[^>]+>\[(.*)\]<\/font>.*/i",$msg,$matches))
 		{
 			$lowid          = $matches[1];
 			$highid         = $matches[2];
