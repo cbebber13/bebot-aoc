@@ -1,6 +1,6 @@
 '<?php
 /*
-* Central Items Database v2.0, By Noer
+* Central Items Database v2.5, By Noer
 * This module submits anonymous data of all items it sees in chat and makes it searchable.
 * The module also features server and world first discoveries.
 *
@@ -104,7 +104,7 @@ class Itemsdb extends BaseActiveModule
 	*/
 	function submit($msg, $group = "tell", $name)
 	{
-		if (preg_match_all("/(<a style=\"text-decoration:none\" href=\"itemref:\/\/([0-9]*)\/([0-9]*)\/([0-9]*)\/([0-9a-f]*\:[0-9a-f]*\:[0-9a-f]*:[0-9a-f]*)\/([0-9a-f]*\:[0-9a-f]*\:[0-9a-f]*:[0-9a-f]*)\"><font[^>]+>\[([a-zA-Z0-9_'&\s]*)\]<\/font><\/a>)/i",$msg,$matches,PREG_SET_ORDER))
+		if (preg_match_all("/(<a style=\"text-decoration:none\" href=\"itemref:\/\/([0-9]*)\/([0-9]*)\/([0-9]*)\/([0-9a-f]*\:[0-9a-f]*\:[0-9a-f]*:[0-9a-f]*)\/([0-9a-f]*\:[0-9a-f]*\:[0-9a-f]*:[0-9a-f]*)\"><font color=#([0-9a-f]*)>\[([a-zA-Z0-9_'&\s]*)\]<\/font><\/a>)/i",$msg,$matches,PREG_SET_ORDER))
 		{
 			foreach ($matches as $match)
 			{
@@ -113,15 +113,17 @@ class Itemsdb extends BaseActiveModule
 				$ql             = $match[4];
 				$lowcrc         = $match[5];
 				$highcrc        = $match[6];
-				$itemname       = $match[7];
-				$checksum       = md5('aocitems' + $lowid + $highid + $ql + $lowcrc + highcrc + $itemname + $this -> bot -> dimension + $this -> bot -> guild + $name);
+				$color		= $match[7];
+				$itemname       = $match[8];
+				$checksum       = md5('aocitems' + $lowid + $highid + $ql + $lowcrc + highcrc + $color + $itemname + $this -> bot -> dimension + $this -> bot -> guild + $name);
 
-				$url  = $this->server."botsubmit/v2/";
+				$url  = $this->server."botsubmit/v3/";
 				$url .= '?lowid='.urlencode($lowid);
 				$url .= '&highid='.urlencode($highid);
 				$url .= '&ql='.urlencode($ql);
 				$url .= '&lowcrc='.urlencode($lowcrc);
 				$url .= '&highcrc='.urlencode($highcrc);
+				$url .= '&color='.urlencode($color);
 				$url .= '&name='.urlencode($itemname);
 				$url .= '&server='.urlencode($this -> bot -> dimension);
 				$url .= '&guildname='.urlencode($this -> bot -> guild);
