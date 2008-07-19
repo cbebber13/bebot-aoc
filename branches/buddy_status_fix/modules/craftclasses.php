@@ -80,12 +80,12 @@ class craftclasses Extends BaseActiveModule
 
 	function buddy($name, $online, $level, $location)
 	{
-		if ($msg == 1 || $msg == 0)
+		if(0 == $online || 1 == $online)
 		{
 			if ($this -> bot -> core("notify") -> check($name) && $this -> bot -> core("settings") -> get("Craftclasses", "Remind"))
 			{
 				$id = $this -> bot -> core("chat") -> get_uid($name);
-				if ($msg == 1)
+				if ($online == 1)
 				{
 					if ($this -> last_log["on"][$name] < (time() - 5))
 					{

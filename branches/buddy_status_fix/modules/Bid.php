@@ -53,7 +53,7 @@ class Bid extends BaseActiveModule
 	var $announce;
 	var $announced;
 	var $end;
-	
+
 
 
 	/*
@@ -65,7 +65,7 @@ class Bid extends BaseActiveModule
 		parent::__construct(&$bot, get_class($this));
 
 		$this -> bid = "";
-		
+
 		$this -> register_command('tell', 'bid', 'MEMBER');
 
 		$this -> help['description'] = "Handles auctions using raid points";
@@ -113,7 +113,7 @@ class Bid extends BaseActiveModule
 			$msg .= "on ##highlight##$item##end##! You have ";
 			$msg .= "##highlight##60 seconds##end## to place bids :: " . $this -> info();
 			$msg .= "\n##highlight##-------------------------------------##end##";
-			$this -> bot -> send_pgroup($msg);
+			$this -> bot -> send_gc($msg);
 		}
 		else
 		$this -> bot -> send_tell($name, "You must be a raidleader to do this");
@@ -185,7 +185,7 @@ class Bid extends BaseActiveModule
 				$this -> end = time() + 10;
 			}
 
-			$this -> bot -> send_pgroup("##highlight##" . $this -> highestbidder . "##end## leads with " .
+			$this -> bot -> send_gc("##highlight##" . $this -> highestbidder . "##end## leads with " .
 			"##highlight##$highest##end## points. Bidding ends " .
 			"in ##highlight##$secs##end## seconds :: " . $this -> info());
 		}
@@ -202,12 +202,12 @@ class Bid extends BaseActiveModule
 		{
 			if (empty($this -> highestbidder))
 			{
-				$this -> bot -> send_pgroup("Auction is over. No bids where placed. Item is FFA.");
+				$this -> bot -> send_gc("Auction is over. No bids where placed. Item is FFA.");
 			}
 			else
 			{
 				$highest = (($this -> maxbid == $this -> secondbid) ? ($this -> maxbid) : ($this -> secondbid + 1));
-				$this -> bot -> send_pgroup("##highlight##" . $this -> highestbidder . "##end## has won the auction for ##highlight##" .
+				$this -> bot -> send_gc("##highlight##" . $this -> highestbidder . "##end## has won the auction for ##highlight##" .
 				$this -> bid . "##end##. ##highlight##$highest##end## points are beeing deduced from his account.");
 				$this -> bot -> db -> query("UPDATE #___raid_points SET points = points - " . ($highest * 10) .
 				" WHERE id = " . $this -> points_to($this -> highestbidder));

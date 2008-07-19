@@ -60,12 +60,10 @@ class Raid extends BaseActiveModule
 		$this -> announce = 0;
 		$this -> locked = false;
 
-        $this -> register_command("tell", "c", "LEADER");
-        $this -> register_command("all", "raid", "GUEST");
-        $this -> register_event("pgleave");
-        $this -> register_event("connect");
-        
-		$this -> bot -> core("settings") -> create ("Raid", "Remonleave", "On", "Automatically remove players from the raid if they leave <botname>'s channel?", "On;Off", FALSE, 15);
+		$this -> register_command("tell", "c", "LEADER");
+		$this -> register_command("all", "raid", "GUEST");
+		$this -> register_event("connect");
+
 		$this -> bot -> core("settings") -> create ("Raid", "Command", "LEADER", "Who should be able to access the higher level raid commands (all commands except join/leave)?", "ADMIN;LEADER;MEMBER;GUEST;ANONYMOUS");
 		$this -> bot -> core("settings") -> create ("Raid", "Cformat", "Raid Command from ##highlight####name####end##: ##msg##", "How Should the Raid Command be Output, Use ##name## and ##msg## to place name and message where you want.");
 
@@ -79,7 +77,7 @@ class Raid extends BaseActiveModule
 		$this -> help['command']['raid add <name>'] = "Adds player <name> to the current raid, even if the raid is locked.";
 		$this -> help['command']['raid kick <name>'] = "Kicks player <name> from the current raid.";
 		$this -> help['command']['raid check'] = "Generates a list of active raiders with assist links in a window for attendance checking.";
-        $this -> help['command']['c <message>'] = "Raid command. Display <message> in a highly visiable manner.";
+		$this -> help['command']['c <message>'] = "Raid command. Display <message> in a highly visiable manner.";
 		$this -> help['notes'] = "All commands except join and leave are restricted to users with " . $this -> bot -> core("settings") -> get('Raid', 'Command') . " or higher access.";
 	}
 
@@ -148,22 +146,6 @@ class Raid extends BaseActiveModule
 	function connect()
 	{
 		$this -> bot -> db -> query("UPDATE #___raid_points SET raiding = 0");
-	}
-	
-	/*
-	This gets called if someone leaves the privgroup
-	*/
-	function pgleave($name)
-	{
-		if ($this -> bot -> core("settings") -> get("Raid", "Remonleave"))
-		{
-			if (isset($this -> user[$name]))
-			{
-				unset($this -> user[$name]);
-				return "##highlight##$name##end## was removed from the raid.";
-				$this -> bot -> db -> query("UPDATE #___raid_points SET raiding = 0 WHERE id = " . $this -> points_to($name));
-			}
-		}
 	}
 
 	/*
@@ -237,15 +219,15 @@ class Raid extends BaseActiveModule
 	Adds a point to all raiders
 	*/
 	function add_point($name, $points)
-	{ //fix me!
+	{ //fix me! - fixed addto_raid so that raiders are added correctly
 		if(!is_numeric($points))
 		{
 			$this -> bot -> send_tell($name, "Invalid Points Amount");
 		}
 		elseif ($this -> bot -> core("security") -> check_access($name, $this -> bot -> core("settings") -> get('Raid', 'Command')))
 		{
-			$this -> bot -> send_pgroup("##highlight##$points##end## points have been added to all raiders.");
-			$this -> bot -> db -> query("Update #___raid_points SET points = points + " . ($points * 10) . " WHERE raiding = 1");
+			$this -> bot -> send_gc("##highlight##$points##end## points have been added to all raiders.");
+			$this -> bot -> db -> query("UPDATE #___raid_points SET points = points + " . ($points * 10) . " WHERE raiding = 1");
 		}
 		else
 			$this -> bot -> send_tell($name, "You must be a raidleader to do this");
@@ -269,16 +251,12 @@ class Raid extends BaseActiveModule
 				return "Player ##highlight##$player##end## does not exist.";
 			else
 			{
-				$result = $this -> bot -> db -> select ("SELECT id FROM #___raid_points WHERE id = " . $this -> points_to($name));
-				if (empty($result))
-					$this -> bot -> db -> query("INSERT INTO #___raid_points (id, points, raiding) VALUES (" . $this -> points_to($name) . ", 0, 1)");
-				else
-					$this -> bot -> db -> query("UPDATE #___raid_points SET raiding = 1 WHERE id = " . $this -> points_to($name));
+				$this -> bot -> db -> query("INSERT INTO #___raid_points (id, points, raiding) VALUES (" . $this -> points_to($uid) . ", 0, 1) ON DUPLICATE KEY UPDATE raiding = 1");
 
 				//Update last_raid
 				$query = "UPDATE #___users SET last_raid = " . time() . " WHERE nickname = '$name'";
 				$this -> bot -> db -> query($query);
-					
+
 				$this -> user[$player] = $uid;
 				$this -> bot -> send_tell($player, "##highlight##$name##end## added you to the raid.");
 				$this -> bot -> send_output("", "##highlight##$player##end## was ##highlight##added##end## to the raid by ##highlight##$name##end## :: " . $this -> clickjoin(), "both");
@@ -303,12 +281,8 @@ class Raid extends BaseActiveModule
 		}
 		else if ($this -> raid)
 		{
-			$result = $this -> bot -> db -> select ("SELECT id FROM #___raid_points WHERE id = " . $this -> points_to($name));
-			if (empty($result))
-				$this -> bot -> db -> query("INSERT INTO #___raid_points (id, points, raiding) VALUES (" . $this -> points_to($name) . ", 0, 1)");
-			else
-				$this -> bot -> db -> query("UPDATE #___raid_points SET raiding = 1 WHERE id = " . $this -> points_to($name));
-		
+			$this -> bot -> db -> query("INSERT INTO #___raid_points (id, points, raiding) VALUES (" . $this -> points_to($name) . ", 0, 1) ON DUPLICATE KEY raiding = 1");
+
 			//Update last_raid
 			$query = "UPDATE #___users SET last_raid = " . time() . " WHERE nickname = '$name'";
 			$this -> bot -> db -> query($query);
@@ -378,6 +352,7 @@ class Raid extends BaseActiveModule
 
 			if (!empty($players))
 			{
+/*
 				foreach ($players as $player)
 				{
 					if (!empty($assist))
@@ -387,7 +362,7 @@ class Raid extends BaseActiveModule
 				}
 
 				$inside .= "<a href='chatcmd://$assist'>Check all raid members</a>\n\n";
-
+*/
 				foreach ($players as $player)
 				{
 					$inside .= $player . " [".$this -> bot -> core("tools") -> chatcmd(
@@ -460,7 +435,7 @@ class Raid extends BaseActiveModule
 		$this -> announce += 1;
 		if ($this -> announce == 10)
 		{
-			$this -> bot -> send_pgroup("Raid is running for ##highlight##" .
+			$this -> bot -> send_gc("Raid is running for ##highlight##" .
 			(((int)((time () - $this -> start) / 60)) + 1) . "##end## minutes now.");
 			$this -> announce = 0;
 		}

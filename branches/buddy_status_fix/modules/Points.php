@@ -50,12 +50,12 @@ class Points extends BaseActiveModule
 	function __construct(&$bot)
 	{
 		parent::__construct(&$bot, get_class($this));
-		
+
 		$this -> bot -> db -> query("CREATE TABLE IF NOT EXISTS " . $this -> bot -> db -> define_tablename("raid_points", "true") . "
 				(id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
 				points INT,
 				raiding TINYINT DEFAULT '0')");
-		
+
 		$this -> bot -> core("settings") -> create("Points", "Transfer", FALSE, "Can points be transfered?");
 		$this -> bot -> core("settings") -> create("Points", "To_Main", FALSE, "Are points shared over all alts?");
 
@@ -109,7 +109,7 @@ class Points extends BaseActiveModule
 	{
 		if (!$target)
 		{
-			if (!$this -> bot -> core("chat") -> get_uid($target))
+			if (!$this -> bot -> core("chat") -> get_uid($name))
 			{
 				$this -> bot -> send_tell ($name, "Player <font color=#ffff00>$who##end## does not exist.");
 			}
@@ -357,7 +357,7 @@ class Points extends BaseActiveModule
 			{
 				$this -> bot -> db -> query("UPDATE #___raid_points SET points = points + " . ($num * 10) .
 				" WHERE id = " . $this -> points_to($who));
-				$this -> bot -> send_pgroup("<font color=#ffff00>$name##end## added <font color=#ffff00>$num##end## raidpoints to <font color=#ffff00>$who##end##'s account.");
+				$this -> bot -> send_gc("<font color=#ffff00>$name##end## added <font color=#ffff00>$num##end## raidpoints to <font color=#ffff00>$who##end##'s account.");
 				$this -> bot -> send_tell($name, "You added <font color=#ffff00>$num##end## raidpoints to <font color=#ffff00>$who##end##'s account.");
 				$this -> bot -> send_tell($who, "<font color=#ffff00>$name##end## added <font color=#ffff00>$num##end## raidpoints to your account.");
 				return;
@@ -393,7 +393,7 @@ class Points extends BaseActiveModule
 			{
 				$this -> bot -> db -> query("UPDATE #___raid_points SET points = points - " . ($num * 10) .
 				" WHERE id = " . $this -> points_to($who));
-				$this -> bot -> send_pgroup("<font color=#ffff00>$name##end## removed <font color=#ffff00>$num##end## raidpoints from <font color=#ffff00>$who##end##'s account.");
+				$this -> bot -> send_gc("<font color=#ffff00>$name##end## removed <font color=#ffff00>$num##end## raidpoints from <font color=#ffff00>$who##end##'s account.");
 				$this -> bot -> send_tell($name, "You removed <font color=#ffff00>$num##end## raidpoints from <font color=#ffff00>$who##end##'s account.");
 				$this -> bot -> send_tell($who, "<font color=#ffff00>$name##end## removed <font color=#ffff00>$num##end## raidpoints from your account.");
 				return;

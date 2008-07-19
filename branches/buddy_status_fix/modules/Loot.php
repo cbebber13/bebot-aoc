@@ -54,21 +54,8 @@ class Rolls extends BaseActiveModule
 
 		$this -> count = 0;
 
-		$this -> register_command("pgmsg", "loot", "ANONYMOUS");
-		$this -> register_command("pgmsg", "add", "ANONYMOUS");
-		$this -> register_command("pgmsg", "rem", "ANONYMOUS");
-		$this -> register_command("pgmsg", "list", "ANONYMOUS");
-		$this -> register_command("pgmsg", "result", "ADMIN");
-		$this -> register_command("pgmsg", "clear", "ADMIN");
-		$this -> register_command("pgmsg", "reroll", "ADMIN");
-		$this -> register_command("tell", "add", "ANONYMOUS");
-		$this -> register_command("tell", "rem", "ANONYMOUS");
-		$this -> register_command("tell", "loot", "ANONYMOUS");
-		$this -> register_command("tell", "list", "ANONYMOUS");
-		$this -> register_command("tell", "clear", "ADMIN");
-		$this -> register_command("tell", "reroll", "ADMIN");
-
-		$this -> register_event("pgleave");
+		$this -> register_command("gc", "loot", "ANONYMOUS", array("add" => "ANONYMOUS", "rem" => "ANONYMOUS", "list" => "ANONYMOUS", "clear" => "ADMIN", "result" => "ADMIN", "reroll" => "ADMIN"));
+		$this -> register_command("tell", "loot", "ANONYMOUS", array("add" => "ANONYMOUS", "rem" => "ANONYMOUS", "list" => "ANONYMOUS", "clear" => "ADMIN", "result" => "ADMIN", "reroll" => "ADMIN"));
 
 		$this -> bot -> core("settings") -> create ("Loot", "Roll", "SINGLE", "Should you be allowed to be added to the roll of more than one slot?", "SINGLE;MULTI");
 
@@ -76,61 +63,61 @@ class Rolls extends BaseActiveModule
 
 		$this -> help['description'] = 'Module to flat roll on items.';
 		$this -> help['command']['loot <item>']="Adds an item to the roll list.";
-		$this -> help['command']['add <slot>']="Adds your name to the slot number.  Add 0 removes you from all slots.";
-		$this -> help['command']['rem <slot>']="Removes your name from the slot number.";
-		$this -> help['command']['list']="Lists all items and who is rolling for them.";
-		$this -> help['command']['clear']="Clears all rolls.";
-		$this -> help['command']['result']="Rolls for all the items and announces winners.";
-		$this -> help['command']['reroll']="Adds any unwon items from the last roll to a new roll.";
+		$this -> help['command']['loot add <slot>']="Adds your name to the slot number.  Add 0 removes you from all slots.";
+		$this -> help['command']['loot rem <slot>']="Removes your name from the slot number.";
+		$this -> help['command']['loot list']="Lists all items and who is rolling for them.";
+		$this -> help['command']['loot clear']="Clears all rolls.";
+		$this -> help['command']['loot result']="Rolls for all the items and announces winners.";
+		$this -> help['command']['loot reroll']="Adds any unwon items from the last roll to a new roll.";
 	}
 
 	/*
 	This function handles all the inputs and returns FALSE if the
 	handler should not send output, otherwise returns a string
-	sutible for output via send_tell, send_pgroup, and send_gc.
+	sutible for output via send_tell, send_gc, and send_pgroup.
 	*/
 	function command_handler($name, $msg, $source)
 	{ // Start function handler()
-		if(preg_match("/^loot (.*)/i", $msg, $info))
-			$this -> loot($info[1], $name);
-		else if(preg_match("/^reroll/i", $msg, $info))
-			$this -> reroll($name);
-		else if(preg_match("/^add ([0-9]+)/i", $msg, $info))
-			$this -> add($name, $info[1], false);
-		else if(preg_match("/^list/i", $msg))
-			$this -> rlist();
-		else if(preg_match("/^rem ([0-9]+)/i", $msg, $info))
-		{
-			if (isset($this -> loot[$info[1]][$name]))
-			{
-				unset($this -> loot[$info[1]][$name]);
-				$this -> bot -> send_pgroup("##loot_highlight##" . $name . "##end## removed from rolls in slot##loot_highlight## #" . $info[1]);
-			}
-		}
-		else if(preg_match("/^result/i", $msg))
-				$this -> roll($name);
-		else if(preg_match("/^clear/i", $msg))
-		{
-			unset($this -> loot);
-			unset($this -> leftovers);
-			$this -> count = 0;
-			$this -> bot -> send_pgroup("##loot_highlight##" . $name . "##end## cancelled the loot rolls in progress");
-		}
-		else
-		$this -> bot -> send_help($name);
-	} // End function handler()
+		$this->error->reset(); //Reset the error message so we don't trigger the handler by old error messages.
 
-	/*
-	This gets called if someone leaves the privgroup
-	*/
-	function pgleave($name)
-	{
-		if (isset($this -> loot[$info[1]][$name]))
+		$com = $this->parse_com($msg, array('com', 'sub', 'args'));
+
+		switch(strtolower($com['sub']))
 		{
-			unset($this -> loot[$info[1]][$name]);
-			$this -> bot -> send_pgroup("##loot_highlight##" . $name . "##end## removed from rolls in slot##loot_highlight## #" . $info[1]);
+			case 'clear':
+				unset($this -> loot);
+				unset($this -> leftovers);
+				$this -> count = 0;
+				$this -> bot -> send_gc("##loot_highlight##" . $name . "##end## cancelled the loot rolls in progress");
+				break;
+			case 'result':
+				$this -> roll($name);
+				break;
+			case 'list':
+				$this -> rlist();
+				break;
+			case 'add':
+				$this -> add($name, $com['args'], false);
+				break;
+			case 'reroll':
+				$this -> reroll($name);
+				break;
+			case 'rem':
+				if(is_numeric($com['args']) && (int) $com['args'] ==  (real) $com['args'] && array_key_exists($name, $this -> loot[$com['args']]))
+				{
+					unset($this -> loot[$com['args']][$name]);
+					$this -> bot -> send_gc("##loot_highlight##" . $name . "##end## removed from rolls in slot##loot_highlight## #" . $com['args']);
+				}
+				else
+					$this -> bot -> send_help($name);
+				break;
+			default:
+				if(!empty($com['sub']) || !empty($com['args']))
+					$this -> loot($com['sub'].' '.$com['args'], $name);
+				else
+					$this -> bot -> send_help($name);
 		}
-	}
+	} // End function handler()
 
 /***********************************************************************************************************/
 	function add($name, $slot)
@@ -190,7 +177,7 @@ class Rolls extends BaseActiveModule
 				$this -> addmsg = "There is currently no roll in slot $slot";
 		}
 
-		$this -> bot -> send_pgroup($this -> addmsg);
+		$this -> bot -> send_gc($this -> addmsg);
 	}
 
 	function loot($msg, $name)
@@ -217,7 +204,7 @@ class Rolls extends BaseActiveModule
 			$this -> loot[$numslot][num] = 1;
 		}
 
-		$this -> bot -> send_pgroup("##loot_highlight##" . $num . "x " . $msg . "##end## being rolled in slot##loot_highlight## #" . $numslot);
+		$this -> bot -> send_gc("##loot_highlight##" . $num . "x " . $msg . "##end## being rolled in slot##loot_highlight## #" . $numslot);
 
 		if ($this->count == 1)
 		{
@@ -275,7 +262,7 @@ class Rolls extends BaseActiveModule
 		}
 
 		$blob = "Item Winners List :: " . $this -> bot -> core("tools") -> make_blob("click to view", $msg);
-		$this -> bot -> send_pgroup($blob);
+		$this -> bot -> send_gc($blob);
 
 
 		$this -> count = 0;
@@ -286,7 +273,7 @@ class Rolls extends BaseActiveModule
 	{
 		$lcount= count($this->leftovers);
 		if ($lcount==0)
-			$this -> bot -> send_pgroup("##loot_highlight##No leftovers from last roll.##end##");
+			$this -> bot -> send_gc("##loot_highlight##No leftovers from last roll.##end##");
 		else
 		{
 			$this -> count = 0;
@@ -316,7 +303,7 @@ class Rolls extends BaseActiveModule
 				$msg .= "##loot_highlight##" . $num . "x " . $item . "##end## being rolled in slot##loot_highlight## #" . $numslot . "##end##.\n";
 			}
 			$blob = "Item Roll List :: " . $this -> bot -> core("tools") -> make_blob("click to view", $msg);
-			$this -> bot -> send_pgroup($blob);
+			$this -> bot -> send_gc($blob);
 
 			unset($this->leftovers);
 		}
@@ -352,7 +339,7 @@ class Rolls extends BaseActiveModule
 		}
 
 		$blob = "Item Roll List :: " . $this -> bot -> core("tools") -> make_blob("click to view", $msg);
-		$this -> bot -> send_pgroup($blob);
+		$this -> bot -> send_gc($blob);
 	}
 }
 ?>

@@ -101,16 +101,13 @@ class Whois extends BaseActiveModule
 	*/
 	function buddy($name, $msg)
 	{
-		if($msg == 1 || $msg == 0)
+		if((!$this -> bot -> core("notify") -> check($name)) && isset($this -> name[$name]))
 		{
-			if((!$this -> bot -> core("notify") -> check($name)) && isset($this -> name[$name]))
-			{
-				$msg = $this -> whois_player($this -> name[$name], $name, $this -> origin[$name]);
-				//$this -> irc -> message(SMARTIRC_TYPE_CHANNEL, $this -> whois[$name], $this -> whois[$name]);
-				$this -> bot -> send_output($this -> name[$name], $msg, $this -> origin[$name]);
-				unset($this -> name[$name]);
-				unset($this -> origin[$name]);
-			}
+			$msg = $this -> whois_player($this -> name[$name], $name, $this -> origin[$name]);
+			//$this -> irc -> message(SMARTIRC_TYPE_CHANNEL, $this -> whois[$name], $this -> whois[$name]);
+			$this -> bot -> send_output($this -> name[$name], $msg, $this -> origin[$name]);
+			unset($this -> name[$name]);
+			unset($this -> origin[$name]);
 		}
 	}
 
@@ -129,7 +126,7 @@ class Whois extends BaseActiveModule
 		elseif (!$who["error"])
 		{
 
-			$result = "##whois_name## " . $who["nickname"] . " ##end## is a level ";
+			$result = "##whois_name##" . $who["nickname"] . "##end## is a level ";
 			$result .= "##whois_level##" . $who["level"] . "##end## ";
 			$result .= "##whois_class##";
 
