@@ -251,7 +251,7 @@ class Raid extends BaseActiveModule
 				return "Player ##highlight##$player##end## does not exist.";
 			else
 			{
-				$this -> bot -> db -> query("INSERT INTO #___raid_points (id, points, raiding) VALUES (" . $this -> points_to($uid) . ", 0, 1) ON DUPLICATE KEY UPDATE raiding = 1");
+				$this -> bot -> db -> query("INSERT INTO #___raid_points (id, points, raiding) VALUES (" . $this -> points_to($player) . ", 0, 1) ON DUPLICATE KEY UPDATE raiding = 1");
 
 				//Update last_raid
 				$query = "UPDATE #___users SET last_raid = " . time() . " WHERE nickname = '$name'";

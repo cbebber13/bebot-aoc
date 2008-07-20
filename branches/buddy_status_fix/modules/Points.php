@@ -31,8 +31,8 @@
 *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307
 *  USA
 *
-* File last changed at $LastChangedDate: 2008-06-12 17:22:35 +0100 (Thu, 12 Jun 2008) $
-* Revision: $Id: Points.php 1658 2008-06-12 16:22:35Z temar $
+* File last changed at $LastChangedDate: 2008-07-20 22:51:01 +0100 (Sun, 20 Jul 2008) $
+* Revision: $Id: Points.php 1671 2008-07-20 21:51:01Z temar $
 */
 
 
@@ -412,8 +412,8 @@ class Points extends BaseActiveModule
 	*/
 	function points_to($name)
 	{
-		if ($this -> bot -> core("settings") -> get("Points", "To_main"))
-		return $this -> bot -> core("chat") -> get_uid($name);
+		if (!$this -> bot -> core("settings") -> get("Points", "To_main"))
+			return $this -> bot -> core("chat") -> get_uid($name);
 
 		$main = $this -> bot -> core("alts") -> main($name);
 		return $this -> bot -> core("chat") -> get_uid($main);
