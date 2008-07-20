@@ -58,18 +58,18 @@ class NewTeams extends BaseActiveModule
 		$this -> numteams = 0;
 		$this -> pgroup = array(array());
 
-        $this -> register_command("all", "teams", "GUEST");
-        $this -> register_command("all", "startteam", "LEADER");
-        $this -> register_command("all", "clearteams", "LEADER");
-        $this -> register_command("all", "addteam", "LEADER");
-        $this -> register_command("all", "remteam", "LEADER");
-        $this -> register_command("all", "delteam", "LEADER");
-        $this -> register_command("all", "setleader", "LEADER");
-        $this -> register_command("all", "teamadmin", "LEADER");
-        $this -> register_command("all", "teamname", "LEADER");
+		$this -> register_command("all", "teams", "GUEST");
+		$this -> register_command("all", "startteam", "LEADER");
+		$this -> register_command("all", "clearteams", "LEADER");
+		$this -> register_command("all", "addteam", "LEADER");
+		$this -> register_command("all", "remteam", "LEADER");
+		$this -> register_command("all", "delteam", "LEADER");
+		$this -> register_command("all", "setleader", "LEADER");
+		$this -> register_command("all", "teamadmin", "LEADER");
+		$this -> register_command("all", "teamname", "LEADER");
 
-        $this -> register_event("pgjoin");
-        $this -> register_event("pgleave");
+		$this -> register_event("pgjoin");
+		$this -> register_event("pgleave");
 	}
 
 	function SetTeamLeader($name, $num, $executer)
