@@ -18,7 +18,7 @@ class craftclasses Extends BaseActiveModule
 
 	var $last_log;
 	var $start;
-	
+
 	// Constructor
 	function __construct (&$bot)
 	{
@@ -50,7 +50,7 @@ class craftclasses Extends BaseActiveModule
 
 		$this -> bot -> core("settings") -> create("Craftclasses", "Remind", TRUE, "Should users level 40+ be reminded to set their craft classes?");
 	}
-	
+
 	function command_handler($name, $msg, $origin)
 	{
 		$output = "";
@@ -80,27 +80,30 @@ class craftclasses Extends BaseActiveModule
 
 	function buddy($name, $online, $level, $location)
 	{
-		if ($this -> bot -> core("notify") -> check($name) && $this -> bot -> core("settings") -> get("Craftclasses", "Remind"))
-		{			
-			$id = $this -> bot -> core("chat") -> get_uid($name);
-			if ($msg == 1)
+		if(0 == $online || 1 == $online)
+		{
+			if ($this -> bot -> core("notify") -> check($name) && $this -> bot -> core("settings") -> get("Craftclasses", "Remind"))
 			{
-				if ($this -> last_log["on"][$name] < (time() - 5))
+				$id = $this -> bot -> core("chat") -> get_uid($name);
+				if ($online == 1)
 				{
-					$result = $this -> bot -> core("whois") -> lookup($name);
-					if (empty($result["craft1"]) & $result["level"] > 40)
+					if ($this -> last_log["on"][$name] < (time() - 5))
 					{
-						$msg = "You have no crafting information set and you are above level 40. Please use '!setcraft [class1] [class2]'. Classes can be Alchemist, Architect, Armorsmith, Gemcutter and Weaponsmith. If you havn't picked crafting classes yet this may be the time to do it.";
-						$this -> bot -> send_tell($name, $msg);
+						$result = $this -> bot -> core("whois") -> lookup($name);
+						if (empty($result["craft1"]) & $result["level"] > 40)
+						{
+							$msg = "You have no crafting information set and you are above level 40. Please use '!setcraft [class1] [class2]'. Classes can be Alchemist, Architect, Armorsmith, Gemcutter and Weaponsmith. If you havn't picked crafting classes yet this may be the time to do it.";
+							$this -> bot -> send_tell($name, $msg);
+						}
+						$this -> last_log["on"][$name] = time();
 					}
-					$this -> last_log["on"][$name] = time();
 				}
-			}
-			else
-			{
-				if ($this -> last_log["off"][$name] < (time() - 5))
+				else
 				{
-					$this -> last_log["off"][$name] = time();
+					if ($this -> last_log["off"][$name] < (time() - 5))
+					{
+						$this -> last_log["off"][$name] = time();
+					}
 				}
 			}
 		}

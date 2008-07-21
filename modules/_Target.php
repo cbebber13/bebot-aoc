@@ -47,19 +47,19 @@ class Target extends BaseActiveModule
 	{
 		parent::__construct(&$bot, get_class($this));
 
-        $this -> register_command("all", "target", "LEADER");
+		$this -> register_command("all", "target", "LEADER");
 
-        if ($this -> bot -> guildbot)
-        {
-        	$def = "both";
-        }
-        else
-        {
-        	$def = "pgmsg";
-        }
-        $this -> bot -> core("settings") -> create("Target", "Channel", $def, "Which channel should be used for output of the target spam?", "pgmsg;gc;both");
+		if ($this -> bot -> guildbot)
+		{
+			$def = "both";
+		}
+		else
+		{
+			$def = "pgmsg";
+		}
+		$this -> bot -> core("settings") -> create("Target", "Channel", $def, "Which channel should be used for output of the target spam?", "pgmsg;gc;both");
 
-        $this -> help['description'] = 'Calls a target';
+		$this -> help['description'] = 'Calls a target';
 		$this -> help['command']['target']="Calls for attack on <target>.";
 	}
 

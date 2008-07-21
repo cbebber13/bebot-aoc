@@ -1,4 +1,4 @@
-<?php 
+<?php
 /*
 * AFK Module for BE Bot <http://bebot.fieses.net>
 * Module coded by Craized <http://www.craized.net>
@@ -53,7 +53,7 @@ Class AFK extends BaseActiveModule
 		$this -> afk = array();
 
 		$this->register_command("all", "afk", 'MEMBER');
-		
+
 		$this->register_event("privgroup");
 		$this->register_event("gmsg", "org");
 		$this->register_event("buddy");
@@ -195,16 +195,25 @@ Class AFK extends BaseActiveModule
 			return false;
 		}
 	}
-	
+
 	function buddy($name, $msg)
 	{
-		if ($msg == 0)
+		if ($msg == 5)
 		{
 			if($this -> acheck($name))
 			{
 				$this -> back($name);
 				$msgs = $this -> msgs($name);
-				$this -> bot -> send_tell($name, "you have been set as back. (Logoff) ".$msgs."");
+				$this -> bot -> send_tell($name, "you have been set as back. ".$msgs."");
+			}
+		}
+		else if ($msg == 3)
+		{
+			if(!$this -> acheck($name))
+			{
+				$this -> gone($name);
+				$msgs = $this -> msgs($name);
+				$this -> bot -> send_tell($name, "you have been set as AFK. ".$msgs."");
 			}
 		}
 	}
@@ -225,7 +234,7 @@ Class AFK extends BaseActiveModule
 		}
 		unset ($this -> afkmsgs[$name]);
 		Return FALSE;
-		
+
 	}
 
 

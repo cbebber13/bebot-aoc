@@ -64,13 +64,13 @@ class PlayerNotes_UI extends BaseActiveModule
 			case'add':
 				return $this -> add_note($name, $com['args']);
 				break;
-            case'add':
-            case'admin':
-                $admin = explode(" ", $msg[2], 2);
-                if(strtolower($admin[0]) == "add" || strtolower($admin[0]) == "admin")
-                    return $this -> add_note($name, $admin[1], TRUE);
-                else
-                    return $this -> add_note($name, $msg[2], FALSE);
+			case'add':
+			case'admin':
+				$admin = explode(" ", $msg[2], 2);
+				if(strtolower($admin[0]) == "add" || strtolower($admin[0]) == "admin")
+					return $this -> add_note($name, $admin[1], TRUE);
+				else
+					return $this -> add_note($name, $msg[2], FALSE);
 			case'rem':
 			case'del':
 				return $this -> rem_note($com['args']);
@@ -121,7 +121,7 @@ class PlayerNotes_UI extends BaseActiveModule
 		$player = ucfirst(strtolower($player));
 		if (!$this -> bot -> core("chat") -> get_uid($player))
 		{
-			$this->error->set("Player '$player' is not a valis AO character");
+			$this->error->set("Player '$player' is not a valid character");
 			return($this->error);
 		}
 		$result = $this -> bot -> core("player_notes") -> get_notes($source, $player, "all", "DESC");

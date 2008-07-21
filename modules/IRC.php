@@ -331,84 +331,87 @@ class IRC extends BaseActiveModule
 	*/
 	function buddy($name, $msg)
 	{
-		// Only handle this if connected to IRC server
-		if (!$this -> bot -> core("settings") -> get("irc", "connected"))
+		if ($msg == 1 || $msg == 0)
 		{
-			return;
-		}
-
-		if ($this -> last_log["st"] < time() - $this -> bot -> crondelay)
-		{
-			if (($this -> bot -> core("notify") -> check($name))
-			&& ((strtolower($this -> bot -> core("settings") -> get("Irc", "AnnounceWhat")) == "buddies")
-			|| (strtolower($this -> bot -> core("settings") -> get("Irc", "AnnounceWhat")) == "both")))
+			// Only handle this if connected to IRC server
+			if (!$this -> bot -> core("settings") -> get("irc", "connected"))
 			{
-				if ($msg == 1)
+				return;
+			}
+
+			if ($this -> last_log["st"] < time() - $this -> bot -> crondelay)
+			{
+				if (($this -> bot -> core("notify") -> check($name))
+				&& ((strtolower($this -> bot -> core("settings") -> get("Irc", "AnnounceWhat")) == "buddies")
+				|| (strtolower($this -> bot -> core("settings") -> get("Irc", "AnnounceWhat")) == "both")))
 				{
-					if ($this -> last_log["on"][$name] < (time() - 5))
+					if ($msg == 1)
 					{
-						$id = $this -> bot -> core("chat") -> get_uid($name);
-						$who = $this -> bot -> core("whois") -> lookup($name);
-
-						if ($who['error'])
+						if ($this -> last_log["on"][$name] < (time() - 5))
 						{
-							$res = $name . " logged on";
+							$id = $this -> bot -> core("chat") -> get_uid($name);
+							$who = $this -> bot -> core("whois") -> lookup($name);
+
+							if ($who['error'])
+							{
+								$res = $name . " logged on";
+							}
+							else
+							{
+								$res = "\"" . $name . "\"";
+								if (!empty($who['firstname']))
+								{
+									$res = $who['firstname'] . " " . $res;
+								}
+								if (!empty($who['lastname']))
+								{
+									$res .= " " . $who['lastname'];
+								}
+
+								$res .= " (Lvl " . $who['level'] ." ";
+								$res .= $who['class'];
+								if ($who['org_name'] != '')
+								{
+									$res .= ", " . $who['org_rank'] . " of " . $who['org'];
+								}
+								$res .= ") logged on";
+							}
+
+							$main = $this -> bot -> core("alts") -> main($name);
+
+							if ($main != $this -> bot -> core("chat") -> get_uname($name))
+							{
+								$alts = " :: Alt of " . $main;
+							}
+
+							$this -> send_irc($this -> bot -> core("settings") -> get("Irc", "Ircguildprefix"), "", '3**** '.$res.$alts);
+							$this -> last_log["on"][$name] = time();
 						}
-						else
+					}
+					else if ($msg == 0)
+					{
+						if ($this -> last_log["off"][$name] < (time() - 5))
 						{
-							$res = "\"" . $name . "\"";
-							if (!empty($who['firstname']))
-							{
-								$res = $who['firstname'] . " " . $res;
-							}
-							if (!empty($who['lastname']))
-							{
-								$res .= " " . $who['lastname'];
-							}
-
-							$res .= " (Lvl " . $who['level'] ." ";
-							$res .= $who['class'];
-							if ($who['org_name'] != '')
-							{
-								$res .= ", " . $who['org_rank'] . " of " . $who['org'];
-							}
-							$res .= ") logged on";
+							$this -> send_irc($this -> bot -> core("settings") -> get("Irc", "Ircguildprefix"), "",'3**** '.$name.' has logged off.');
+							$this -> last_log["off"][$name] = time();
 						}
-
-						$main = $this -> bot -> core("alts") -> main($name);
-
-						if ($main != $this -> bot -> core("chat") -> get_uname($name))
-						{
-							$alts = " :: Alt of " . $main;
-						}
-
-						$this -> send_irc($this -> bot -> core("settings") -> get("Irc", "Ircguildprefix"), "", '3**** '.$res.$alts);
-						$this -> last_log["on"][$name] = time();
 					}
 				}
-				else
+				else if((!$this -> bot -> core("notify") -> check($name)) && isset($this -> is[$name]))
 				{
-					if ($this -> last_log["off"][$name] < (time() - 5))
-					{
-						$this -> send_irc($this -> bot -> core("settings") -> get("Irc", "Ircguildprefix"), "",'3**** '.$name.' has logged off.');
-						$this -> last_log["off"][$name] = time();
-					}
+					if ($msg == 1)
+						$msg = $name . " is online.";
+					else if ($msg == 0)
+						$msg = $name . " is offline.";
+					$this -> irc -> message(SMARTIRC_TYPE_CHANNEL, $this -> is[$name], $msg);
+					unset($this -> is[$name]);
 				}
-			}
-			else if((!$this -> bot -> core("notify") -> check($name)) && isset($this -> is[$name]))
-			{
-				if ($msg == 1)
-				$msg = $name . " is online.";
-				else
-				$msg = $name . " is offline.";
-				$this -> irc -> message(SMARTIRC_TYPE_CHANNEL, $this -> is[$name], $msg);
-				unset($this -> is[$name]);
-			}
-			else if((!$this -> bot -> core("notify") -> check($name)) && isset($this -> whois[$name]))
-			{
-				$msg = $this -> whois_player($name). " ";
-				$this -> irc -> message(SMARTIRC_TYPE_CHANNEL, $this -> whois[$name], $msg);
-				unset($this -> whois[$name]);
+				else if((!$this -> bot -> core("notify") -> check($name)) && isset($this -> whois[$name]))
+				{
+					$msg = $this -> whois_player($name). " ";
+					$this -> irc -> message(SMARTIRC_TYPE_CHANNEL, $this -> whois[$name], $msg);
+					unset($this -> whois[$name]);
+				}
 			}
 		}
 	}

@@ -96,75 +96,78 @@ class Logon extends BaseActiveModule
 
 	function buddy($name, $msg)
 	{
-		if (($this -> start < time()) && ($this -> bot -> core("settings") -> get("Logon", "Enable")))
+		if ($msg == 1 || $msg == 0)
 		{
-			if ($this -> bot -> core("notify") -> check($name))
+			if (($this -> start < time()) && ($this -> bot -> core("settings") -> get("Logon", "Enable")))
 			{
-				$id = $this -> bot -> core("chat") -> get_uid($name);
-				if ($msg == 1)
+				if ($this -> bot -> core("notify") -> check($name))
 				{
-					if ($this -> last_log["on"][$name] < (time() - 5))
+					$id = $this -> bot -> core("chat") -> get_uid($name);
+					if ($msg == 1)
 					{
-						$result = $this -> bot -> core("whois") -> lookup($name);
-
-						$res = "\"" . $name . "\"";
-						if (!empty($result["firstname"]))
+						if ($this -> last_log["on"][$name] < (time() - 5))
 						{
-							$res = $result["firstname"] . " " . $res;
-						}
-						if (!empty($result["lastname"]))
-						{
-							$res .= " " . $result["lastname"];
-						}
+							$result = $this -> bot -> core("whois") -> lookup($name);
 
-						$res .= " (Lvl ##logon_level##" . $result["level"] . "##end## ";
-						$res .= $result["class"];
-/*
-						if ($result["org"] != '')
-						{
-							$res .= ", ##logon_organization##" . $result["rank"] . " of " . $result["org"] . "##end##";
-						}
-*/
-						$res .= ") Logged On";
-
-
-						if ($this -> bot -> core("settings") -> get("Whois", "Details") == TRUE)
-						{
-							if ($this -> bot -> core("settings") -> get("Whois", "ShowMain") == TRUE)
+							$res = "\"" . $name . "\"";
+							if (!empty($result["firstname"]))
 							{
-								$main = $this -> bot -> core("alts") -> main($name);
-								if (strcasecmp($main, $name) != 0)
+								$res = $result["firstname"] . " " . $res;
+							}
+							if (!empty($result["lastname"]))
+							{
+								$res .= " " . $result["lastname"];
+							}
+
+							$res .= " (Lvl ##logon_level##" . $result["level"] . "##end## ";
+							$res .= $result["class"];
+	/*
+							if ($result["org"] != '')
+							{
+								$res .= ", ##logon_organization##" . $result["rank"] . " of " . $result["org"] . "##end##";
+							}
+	*/
+							$res .= ") Logged On";
+
+
+							if ($this -> bot -> core("settings") -> get("Whois", "Details") == TRUE)
+							{
+								if ($this -> bot -> core("settings") -> get("Whois", "ShowMain") == TRUE)
 								{
-									$res .= " :: Alt of $main";
+									$main = $this -> bot -> core("alts") -> main($name);
+									if (strcasecmp($main, $name) != 0)
+									{
+										$res .= " :: Alt of $main";
+									}
+								}
+								$res .= " :: " . $this -> bot -> core("whois") -> whois_details($name, $result);
+							}
+							else if ($this -> bot -> core("settings") -> get("Whois", "Alts") == TRUE)
+							{
+								$alts = $this -> bot -> core("alts") -> show_alt($name);
+								if ($alts['alts'])
+								{
+									$res .= " :: " . $alts['list'];
 								}
 							}
-							$res .= " :: " . $this -> bot -> core("whois") -> whois_details($name, $result);
-						}
-						else if ($this -> bot -> core("settings") -> get("Whois", "Alts") == TRUE)
-						{
-							$alts = $this -> bot -> core("alts") -> show_alt($name);
-							if ($alts['alts'])
+
+							$result = $this -> bot -> db -> select("SELECT message FROM #___logon WHERE id = " . $id);
+							if (!empty($result))
 							{
-								$res .= " :: " . $alts['list'];
+								$res .= "  ::  " . stripslashes($result[0][0]);
 							}
-						}
 
-						$result = $this -> bot -> db -> select("SELECT message FROM #___logon WHERE id = " . $id);
-						if (!empty($result))
-						{
-							$res .= "  ::  " . stripslashes($result[0][0]);
+							$this -> show_logon("##logon_logon_spam##" . $res . "##end##");
+							$this -> last_log["on"][$name] = time();
 						}
-
-						$this -> show_logon("##logon_logon_spam##" . $res . "##end##");
-						$this -> last_log["on"][$name] = time();
 					}
-				}
-				else
-				{
-					if ($this -> last_log["off"][$name] < (time() - 5))
+					else
 					{
-						$this -> show_logon("##logon_logoff_spam##" . $name . " logged off##end##");
-						$this -> last_log["off"][$name] = time();
+						if ($this -> last_log["off"][$name] < (time() - 5))
+						{
+							$this -> show_logon("##logon_logoff_spam##" . $name . " logged off##end##");
+							$this -> last_log["off"][$name] = time();
+						}
 					}
 				}
 			}

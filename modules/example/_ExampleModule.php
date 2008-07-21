@@ -74,7 +74,7 @@ class ClassName extends BaseActiveModule
 		$access_level is the default access level for the command
 
 		$sub_access_levels is an array of entries in the format "subcommand" => "level" to define the default access level for subcommands
-*/		
+*/
 		$this->register_command($channel, $command, $access_level, $sub_access_levels);
 /*
 		Register events with the bot
@@ -113,7 +113,7 @@ class ClassName extends BaseActiveModule
 			example: $this->register_event('cron', '2min');
 
  */
-		
+
 /*
 	Create settings for this module. The settings contains seven parts
 	'module' is the module or settings group in which the setting should be placed
@@ -161,11 +161,11 @@ class ClassName extends BaseActiveModule
 	{
 		//ALWAYS reset the error handler before parsing the commands to prevent stale errors from giving false reports
 		$this->error->reset();
-		
+
 		//The default is to split the command to com, sub and args. If you want to split it some other way change the pattern for it
 		//parse_com() returns an array where the pattern is the keys and the values are split out from $msg
 		$com = $this->parse_com($msg, array('com', 'sub', 'args'));
-		
+
 		$command = $vars[0];
 
 		switch($com['com'])
@@ -181,7 +181,7 @@ class ClassName extends BaseActiveModule
 				return($this->error->message());
 		}
 	}
-	
+
 
 
 	/*
@@ -225,7 +225,18 @@ class ClassName extends BaseActiveModule
 
 
 	/*
-	This gets called if a buddy logs on/off  if you previously registered the event 'buddy'
+	This gets called if a buddy logs on/off/levels/goes afk/goes lfg/changes location  if you previously registered the event 'buddy'
+
+	Player Statuses passed in $msg
+	0 = logged off
+	1 = logged on
+	2 = went LFG
+	3 = went AFK
+	4 = stopped LFG
+	5 = no longer AFK
+	6 = changed location
+	7 = changed level
+
 	*/
 	function buddy($name, $msg)
 	{

@@ -49,9 +49,9 @@ class OnlineCounting extends BaseActiveModule
 
 		$this -> register_command("all", "count", "GUEST");
 		$this -> register_command("all", "check", "GUEST");
-		
+
 		$this -> help['description'] = 'Lists characters in chat group';
-		$this -> help['command']['count all']="Lists all professions and the number of characters of each profession in chat";
+		$this -> help['command']['count all']="Lists all professions and the number of characters of each class in chat";
 		$this -> help['command']['count']=$this -> help['command']['count all'];
 		$this -> help['command']['count [prof]']="Lists all members of [prof] with level and alien level that are in chat.";
 		$this -> help['command']['count org'] = "Lists the number of characters per organization currently online in chat.";
@@ -111,7 +111,7 @@ class OnlineCounting extends BaseActiveModule
 		}
 		return $this -> bot -> db -> select("SELECT DISTINCT(t1.nickname), t2.level, t2.defender_rank_id"
 		. " FROM " . $this -> bot -> core("online") -> full_tablename()
-		. " WHERE t2.profession " . $profsearch . " ORDER BY t1.nickname ASC");
+		. " WHERE t2.class " . $profsearch . " ORDER BY t1.nickname ASC");
 	}
 
 	function get_orgs()
@@ -153,13 +153,13 @@ class OnlineCounting extends BaseActiveModule
 		foreach($shortcut_array as $prof)
 			$profession_count[$prof] = 0;
 
- 		$query = "SELECT t2.profession as profession, COUNT(DISTINCT t1.nickname) as count"
+ 		$query = "SELECT t2.class as profession, COUNT(DISTINCT t1.nickname) as count"
  		. " FROM " . $this -> bot -> core("online") -> full_tablename()
- 		. " WHERE t2.profession IN (" . $profession_list . ") GROUP BY profession";
+ 		. " WHERE t2.class IN (" . $profession_list . ") GROUP BY class";
 
 		$online_count = $this->bot->db->select($query, MYSQL_ASSOC);
 		$total_online = 0;
-		
+
 		if (!empty($online_count))
 		{
 			foreach ($online_count as $profession)
@@ -183,7 +183,7 @@ class OnlineCounting extends BaseActiveModule
 		if(($prof = $this -> bot -> core("professions") -> full_name($shortcut)) instanceof BotError) return $prof;
 
 		$pcount = $this -> bot -> db -> select("SELECT COUNT(DISTINCT t1.nickname) FROM "
-				. $this -> bot -> core("online") -> full_tablename() . " WHERE t2.profession = '" . $prof . "'");
+				. $this -> bot -> core("online") -> full_tablename() . " WHERE t2.class = '" . $prof . "'");
 
 		if ($pcount[0][0] == 0)
 			return $this -> bot -> core("colors") -> colorize("counting_text", "No " . $prof . " in chat!");
@@ -210,7 +210,7 @@ class OnlineCounting extends BaseActiveModule
 	function count_org()
 	{
 		$counts = $this -> get_orgs();
-		
+
 		if (empty($counts))
 		{
 			return $this -> bot -> core("colors") -> colorize("counting_text", "Nobody online!");
@@ -285,7 +285,7 @@ class OnlineCounting extends BaseActiveModule
 		$profchars = $this -> get_prof($prof);
 		if (empty($profchars))
 		{
-			return "No " . $prof . " in chat!"; 
+			return "No " . $prof . " in chat!";
 		}
 
 		$assist = array();

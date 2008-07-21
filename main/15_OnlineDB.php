@@ -192,17 +192,20 @@ class OnlineDB_Core extends BasePassiveModule
 	*/
 	function buddy($name, $msg)
 	{ // Start function buddy()
-		if ($this -> bot -> core("notify") -> check($name))
+		if ($msg == 1 || $msg == 0)
 		{
-			if (!isset($this -> bot -> other_bots[$name]))
+			if ($this -> bot -> core("notify") -> check($name))
 			{
-				if ($msg == 1)
+				if (!isset($this -> bot -> other_bots[$name]))
 				{
-					$this -> status_change($name, "gc", 1);
-				}
-				else
-				{
-					$this -> status_change($name, "gc", 0);
+					if ($msg == 1)
+					{
+						$this -> status_change($name, "gc", 1);
+					}
+					else
+					{
+						$this -> status_change($name, "gc", 0);
+					}
 				}
 			}
 		}
