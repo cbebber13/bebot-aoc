@@ -56,7 +56,7 @@ class Relay extends BaseActiveModule
 		$this -> register_event("pginvite");
 		$this -> register_event("connect");
 		$this -> register_event("cron", "5min");
-		
+
 		$this -> bot -> core("settings") -> create('Relay', 'Priv', 'Both', 'Where should private group relay to', 'Both;Guildchat;Relaybots;None');
 		$this -> bot -> core("settings") -> create('Relay', 'Org', 'Both', 'Where should guild chat group relay to', 'Both;Privgroup;Relaybots;None');
 		$this -> bot -> core("settings") -> create('Relay', 'Inc', 'Both', 'Where should incoming messages relay to', 'Both;Guildchat;Privgroup;None');
@@ -136,9 +136,9 @@ class Relay extends BaseActiveModule
 		$this -> bot -> core("settings") -> get('Relay', 'Status') &&
 		strtolower($this -> bot -> core("settings") -> get('Relay', 'Relay')) == strtolower($pgroup))
 		{
-                        $parts = explode(' ', $msg);
-                        unset($parts[0]);
-                        $txt = implode(' ', $parts);
+			$parts = explode(' ', $msg);
+			unset($parts[0]);
+			$txt = implode(' ', $parts);
 
 			if ($this -> bot -> core("settings") -> get('Relay', 'Inc') == "Both" || $this -> bot -> core("settings") -> get('Relay', 'Inc') == "Guildchat")
 			{

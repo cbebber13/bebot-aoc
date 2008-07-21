@@ -115,18 +115,18 @@ class Whois_Core extends BasePassiveModule
 	{
 		$user = $this -> bot -> core("chat") -> get_uid($name);
 
-		$who 			= array();
-		$who["id"] 		= $user;
-		$who["nickname"] 	= $name;
-		$who["online"] 	= $online;
-		$who["level"] 	= $level;
-		$who["location"] 	= $location;
-		$class_name 		= $this -> class_name[$class];
+		$who = array();
+		$who["id"] = $user;
+		$who["nickname"] = $name;
+		$who["online"] = $online;
+		$who["level"] = $level;
+		$who["location"] = $location;
+		$class_name = $this -> class_name[$class];
 		if ($class_name == "")
 		{
 			$class_name = "Commoner";
 		}
-		$who["class"] 		= $class_name;
+		$who["class"] = $class_name;
 		$lookup = $this -> bot -> db -> select("SELECT * FROM #___craftingclass WHERE name = '" . $name . "'", MYSQL_ASSOC);
 		if (!empty($lookup))
 		{

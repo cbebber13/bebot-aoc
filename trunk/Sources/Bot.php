@@ -139,6 +139,7 @@ class Bot
 	private $cron_actived;
 	private $cron;
 	private $startup_time;
+	private $buddy_status = array();
 	public $glob;
 	public $botname;
 
@@ -1006,6 +1007,15 @@ class Bot
 	{
 		$user = $this -> core("chat") -> get_uname($args[0]);
 		$mem = $this -> core("notify") -> check($user);
+
+		// Get the users current state
+		$old_who = $this -> core("Whois") -> lookup($user);
+
+		if(array_key_exists($user, $this -> buddy_status))
+			$old_buddy_status = $this -> buddy_status[$user];
+		else
+			$old_buddy_status = 0;
+
 		$who = array();
 		$who["id"] = $args[0];
 		$who["nickname"] = $user;
@@ -1014,7 +1024,7 @@ class Bot
 		$who["location"] = $args[3];
 		$class_name = $this -> core("Whois") -> class_name[$args[4]];
 		$who["class"] = $class_name;
-		$lookup = $this -> db -> select("SELECT * FROM #___craftingclass WHERE name = '" . $user . "'", MYSQL_ASSOC);
+		$lookup = $this -> db -> select("SELECT * FROM craftingclass WHERE name = '" . $user . "'", MYSQL_ASSOC);
 		if (!empty($lookup))
 		{
 			$who["craft1"] = $lookup[0]['class1'];
@@ -1022,69 +1032,131 @@ class Bot
 		}
 		$this -> core("Whois") -> update($who);
 
-		// Make sure we only cache members and guests to prevent any issues with !is and anything else that might do buddy actions on non members.
-		if ($mem)
+		if($old_who["error"])
 		{
-			// Buddy logging on
-			if ($args[1] == 1)
+			$old_who["level"] = 0;
+			$old_who["location"] = 0;
+		}
+
+		// status change flags:
+		// 1 = online
+		// 2 = LFG
+		// 4 = AFK
+		if(0 == $who["online"])
+			$buddy_status = 0;
+		else if(1 == $who["online"])
+			$buddy_status = 1;
+		else if(2 == $who["online"])
+			$buddy_status = $old_buddy_status | 2;
+		else if(3 == $who["online"])
+			$buddy_status = $old_buddy_status | 4;
+
+		$this -> buddy_status[$user] = $buddy_status;
+
+		$changed = $buddy_status ^ $old_buddy_status;
+
+		$current_statuses = array();
+
+		/* Player Statuses
+		0 = logged off
+		1 = logged on
+		2 = went LFG
+		3 = went AFK
+		4 = stopped LFG
+		5 = no longer AFK
+		6 = changed location
+		7 = changed level
+		*/
+
+		// Deal with overriding status changes
+		if(1 == ($changed & 1))
+		{
+			if(1 == ($old_buddy_status & 1))
 			{
-				// Do we have a logon for a user already logged on?
-				if (isset($this -> glob["online"][$user]))
-				{
-					// $this -> log("BUDDY", "ERROR", $user . " logged on despite of already being marked as logged on!!");
-					return;
-				}
-				else
-				{
-					// Enter the user into the online buddy list
-					$this -> glob["online"][$user] = $user;
-				}
+				// User just went offline
+				$current_statuses[] = 0;
 			}
-			elseif ($args[1] == 0)
+			else
 			{
-				// Do we have a logoff without a prior login?
-				if (!isset($this -> glob["online"][$user]))
-				{
-					// $this -> log("BUDDY", "ERROR", $user . " logged off with no prior logon!!");
-					return;
-				}
-				else
-				{
-					unset($this -> glob["online"][$user]);
-				}
+				// User just came online
+				$current_statuses[] = 1;
 			}
-			elseif ($args[1] == 2)
+		}
+		if(2 == ($changed & 2))
+		{
+			if(2 == ($old_buddy_status & 2))
 			{
-				// Person is on LFG
-				return;
+				// User just returned from LFG
+				$current_statuses[] = 4;
 			}
-			elseif ($args[1] == 3)
+			else
 			{
-				// Person is AFK
-				return;
+				// User just went LFG
+				$current_statuses[] = 2;
 			}
 		}
 
-		$end = "";
-		if (!$mem)
+		if(4 == ($changed & 4))
+		{
+			if(4 == ($old_buddy_status & 4))
+			{
+				// User just returned from AFK
+				$current_statuses[] = 5;
+			}
+			else
+			{
+				// User just went AFK
+				$current_statuses[] = 3;
+			}
+		}
+
+		// Deal with events we don't have to remember
+		if($old_who["level"] != $who["level"] && $old_who["level"] != 0)
+		{
+			// User has changed level
+			$current_statuses[] = 7;
+		}
+		if($old_who["location"] != $who["location"] && $old_who["location"] != 0 && $who["online"] != 0 && !in_array(0, $current_statuses))
+		{
+			// User has changed location
+			$current_statuses[] = 6;
+		}
+
+		// Make sure we only cache members and guests to prevent any issues with !is and anything else that might do buddy actions on non members.
+		if ($mem)
+		{
+			if(in_array(1, $current_statuses))
+			{
+				// User just came online
+				// Enter the user into the online buddy list
+				$this -> glob["online"][$user] = $user;
+			}
+			else if(in_array(0, $current_statuses))
+			{
+				// User just went offline
+				unset($this -> glob["online"][$user]);
+			}
+			$end = " (" . $this -> core("security") -> get_access_name($this -> core("security") -> get_access_level($user)) . ")";
+		}
+		else
 		{
 			$end = " (not on notify)";
 			// Using aoc -> buddy_remove() here is an exception, all the checks in chat -> buddy_remove() aren't needed!
 			$this -> aoc -> buddy_remove($user);
 		}
-		else
-		{
-			$end = " (" . $this -> core("security") -> get_access_name($this -> core("security") -> get_access_level($user)) . ")";
-		}
 
-		$this -> log("BUDDY", "LOG", $user . " logged [" . (($args[1] == 1) ? "on" : "off") . "]" . $end);
 
-		if (!empty($this -> commands["buddy"]))
+		foreach($current_statuses as $status)
 		{
-			$keys = array_keys($this -> commands["buddy"]);
-			foreach ($keys as $key)
+			$this -> log("BUDDY", "LOG", $user . " changed status [" . $status . "]" . $end);
+
+			if (!empty($this -> commands["buddy"]))
 			{
-				$this -> commands["buddy"][$key] -> buddy($user, $args[1], $args[2], $args[3], $args[4]);
+				$keys = array_keys($this -> commands["buddy"]);
+				foreach ($keys as $key)
+				{
+					$this -> commands["buddy"][$key] -> buddy($user, $status, $args[2], $args[3], $args[4]);
+				}
 			}
 		}
 	}

@@ -108,7 +108,7 @@ class Preferences_core extends BasePassiveModule
 			//Buddy logging of. Throw out the cached data.
 			unset($this->cache[$uid]);
 		}
-		else
+		else if($msg == 1)
 		{
 			//cache costomized preferences.
 			$query = "SELECT value, module, name FROM #___preferences AS t1 JOIN #___preferences_def AS t2 ON t1.pref_ID = t2.ID WHERE owner=$uid";

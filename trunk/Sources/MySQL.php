@@ -119,19 +119,63 @@ class MySQL
 		}
 	}
 
-	function connect($initial = false)
+	function connect($initial = false, $isRetry = false)
 	{
-		$conn = mysql_connect($this -> SERVER, $this -> USER, $this -> PASS);
-
-		if (!$conn)
+		if(!isset($first_run))
 		{
-			$this->error("Cannot connect to the database server!", $initial);
-			return false;
+			static $first_run = true;
+			static $last_run = 0;
+			static $wait_timeout = -1;
+			$this->CONN = null;
 		}
-		if(!mysql_select_db($this -> DBASE, $conn))
+
+		if(false === $first_run && (time() - $last_run) > $wait_timeout)
 		{
-			$this->error("Database not found or insufficient priviledges!", $initial);
-			return false;
+			@mysql_close($this->CONN);
+			$this->CONN = null;
+		}
+
+		$last_run = time();
+
+		if(is_null($this->CONN))
+		{
+			$this->CONN = mysql_connect($this -> SERVER, $this -> USER, $this -> PASS);
+
+			if (!$this->CONN)
+			{
+				$this->CONN = null;
+
+				if(true === $isRetry)
+				{
+					$this->error("Cannot connect to the database server!", $initial);
+					return false;
+				}
+				else
+					return $this->connect(false, true);
+
+			}
+			if(!mysql_select_db($this -> DBASE, $this->CONN))
+			{
+				@mysql_close($this->CONN);
+				$this->CONN = null;
+				if(true === $isRetry)
+				{
+					$this->error("Database not found or insufficient priviledges!", $initial);
+					return false;
+				}
+				else
+					return $this->connect(false, true);
+			}
+		}
+
+		if(true === $first_run)
+		{
+			$results = mysql_query("SHOW VARIABLES LIKE 'wait_timeout';");
+			if(false !== $results && $row = mysql_fetch_array($results, MYSQL_NUM))
+				$wait_timeout = $row[1];
+			else
+				$wait_timeout = 60;
+			$first_run = false;
 		}
 
 		if ($initial == true)
@@ -139,7 +183,6 @@ class MySQL
 			echo "MySQL database connection test successfull\n";
 		}
 
-		$this->CONN = $conn;
 	}
 
 	function close()
