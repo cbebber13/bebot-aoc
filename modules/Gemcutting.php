@@ -86,7 +86,7 @@ class Gemcut extends BaseActiveModule
 			{
 				$type = "green";
 			}
-			elseif (preg_match("/(Carnelian|Tiger Eye|Chalcedony|Sunstone|Fire Agate|Padpaasahsa)/",$matches[2]))
+			elseif (preg_match("/(Carnelian|Tiger Eye|Chalcedony|Sunstone|Fire Agate|Padparasha)/",$matches[2]))
                         {
                                 $type = "orange";
                         }
@@ -131,7 +131,7 @@ class Gemcut extends BaseActiveModule
                         {
                                 $tier = 5;
                         }
-			elseif (preg_match("/(Black Diamond|Star Saphire|Emerald|Padpaasahsa|Tyrian Sapphire|Star Ruby|Diamond|Golden Beryl)/",$matches[2]))
+			elseif (preg_match("/(Black Diamond|Star Saphire|Emerald|Padparasha|Tyrian Sapphire|Star Ruby|Diamond|Golden Beryl)/",$matches[2]))
                         {
                                 $tier = 6;
                         }
