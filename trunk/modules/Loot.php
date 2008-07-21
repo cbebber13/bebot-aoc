@@ -318,7 +318,7 @@ class Rolls extends BaseActiveModule
 		foreach($this -> loot as $slot)
 		{
 			$num++;
-			$msg .= "Slot ##loot_highlight###".$num."##end##: (".$this -> bot -> core("tools") -> chatcmd("add ".$num, "Add")."/".$this -> bot -> core("tools") -> chatcmd("rem ".$num, "Remove").")\n";
+			$msg .= "Slot ##loot_highlight###".$num."##end##: (".$this -> bot -> core("tools") -> chatcmd("loot add ".$num, "Add")."/".$this -> bot -> core("tools") -> chatcmd("loot rem ".$num, "Remove").")\n";
 			$msg .= "Item: ##loot_highlight##" . $slot[item]."##end## (##loot_highlight##" . $slot[num] . "x##end##)\n";
 
 			if(count($slot) == 1)
