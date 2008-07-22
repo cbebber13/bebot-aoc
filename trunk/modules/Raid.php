@@ -254,7 +254,7 @@ class Raid extends BaseActiveModule
 				$this -> bot -> db -> query("INSERT INTO #___raid_points (id, points, raiding) VALUES (" . $this -> points_to($player) . ", 0, 1) ON DUPLICATE KEY UPDATE raiding = 1");
 
 				//Update last_raid
-				$query = "UPDATE #___users SET last_raid = " . time() . " WHERE nickname = '$name'";
+				$query = "UPDATE #___users SET last_raid = " . time() . " WHERE nickname = '$player'";
 				$this -> bot -> db -> query($query);
 
 				$this -> user[$player] = $uid;
@@ -281,7 +281,7 @@ class Raid extends BaseActiveModule
 		}
 		else if ($this -> raid)
 		{
-			$this -> bot -> db -> query("INSERT INTO #___raid_points (id, points, raiding) VALUES (" . $this -> points_to($name) . ", 0, 1) ON DUPLICATE KEY raiding = 1");
+			$this -> bot -> db -> query("INSERT INTO #___raid_points (id, points, raiding) VALUES (" . $this -> points_to($name) . ", 0, 1) ON DUPLICATE KEY UPDATE raiding = 1");
 
 			//Update last_raid
 			$query = "UPDATE #___users SET last_raid = " . time() . " WHERE nickname = '$name'";
@@ -430,7 +430,8 @@ class Raid extends BaseActiveModule
 	*/
 	function cron()
 	{
-		$this -> bot -> db -> query("Update #___raid_points SET points = points + 1 WHERE raiding = 1");
+		if(!this->paused)
+			$this -> bot -> db -> query("Update #___raid_points SET points = points + 1 WHERE raiding = 1");
 
 		$this -> announce += 1;
 		if ($this -> announce == 10)

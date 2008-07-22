@@ -77,7 +77,7 @@ class News extends BaseActiveModule
 		//These are required in order to let authors delete their own messages but not everyones.
 		$this -> bot -> core("settings") -> create ("News", "Headline_Del", "ADMIN", "Who should be able to delete headlines", "ADMIN;LEADER;MEMBER;GUEST;ANONYMOUS");
 		$this -> bot -> core("settings") -> create ("News", "News_Del", "ADMIN", "Who should be able to delete news", "ADMIN;LEADER;MEMBER;GUEST;ANONYMOUS");
-		
+
 		$this -> bot -> core("prefs") -> create("News", "Logonspam", "What should news spam when logging on?", "Last_headline", "Last_headline;Link;Nothing");
 
 		$this -> help['description'] = 'Sets and shows headlines, news and raid events.';
@@ -85,10 +85,10 @@ class News extends BaseActiveModule
 		$this -> help['command']['raids']="Shows current raid events";
 		$this -> help['command']['headline add <newsitem>']="Adds <newsitem> to current news. ";
 		$this -> help['command']['news add <newsitem>']="Adds <newsitem> to current news. ";
-		$this -> help['command']['raid add <newsitem>']="Adds <newsitem> to current news. ";
+		$this -> help['command']['raids add <newsitem>']="Adds <newsitem> to current news. ";
 		$this -> help['notes'] = "The deletion of headlines, news and raids are managed by the GUI.";
 	}
-	
+
 	function notify($name, $startup = false)
 	{
 		if (!$startup)
@@ -121,7 +121,7 @@ class News extends BaseActiveModule
 			case 'headline':
 				return($this -> sub_handler($name, $com, 2));
 			break;
-			case 'raid':
+			case 'raids':
 				return($this -> sub_handler($name, $com, 3));
 			break;
 			default:
