@@ -321,8 +321,7 @@ class Points extends BaseActiveModule
 			{
 				$this -> bot -> db -> query("UPDATE #___raid_points SET points = points - " . ($num * 10) .
 				" WHERE id = " . $this -> points_to($name));
-				$this -> bot -> db -> query("UPDATE #___raid_points SET points = points + " . ($num * 10) .
-				" WHERE id = " . $this -> points_to($who));
+				$this -> bot -> db -> query("INSERT INTO #___raid_points (id, points) VALUES (" . $this -> points_to($who) . ", ($num * 10)) ON DUPLICATE KEY UPDATE points = points + VALUES(points)");
 				$this -> bot -> send_tell($name, "You gave <font color=#ffff00>$num##end## raidpoints to <font color=#ffff00>$who##end##.");
 				$this -> bot -> send_tell($who, "You got <font color=#ffff00>$num##end## raidpoints from <font color=#ffff00>$name##end##.");
 				return;
@@ -355,8 +354,7 @@ class Points extends BaseActiveModule
 			}
 			else
 			{
-				$this -> bot -> db -> query("UPDATE #___raid_points SET points = points + " . ($num * 10) .
-				" WHERE id = " . $this -> points_to($who));
+				$this -> bot -> db -> query("INSERT INTO #___raid_points (id, points) VALUES (" . $this -> points_to($who) . ", ($num * 10)) ON DUPLICATE KEY UPDATE points = points + VALUES(points)");
 				$this -> bot -> send_gc("<font color=#ffff00>$name##end## added <font color=#ffff00>$num##end## raidpoints to <font color=#ffff00>$who##end##'s account.");
 				$this -> bot -> send_tell($name, "You added <font color=#ffff00>$num##end## raidpoints to <font color=#ffff00>$who##end##'s account.");
 				$this -> bot -> send_tell($who, "<font color=#ffff00>$name##end## added <font color=#ffff00>$num##end## raidpoints to your account.");
