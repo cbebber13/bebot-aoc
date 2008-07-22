@@ -198,7 +198,9 @@ Class AFK extends BaseActiveModule
 
 	function buddy($name, $msg)
 	{
-		if ($msg == 5)
+		$access = $this -> bot -> core("security") -> get_access_level($name);
+
+		if (($msg == 5) && ($access > 1))
 		{
 			if($this -> acheck($name))
 			{
@@ -207,7 +209,7 @@ Class AFK extends BaseActiveModule
 				$this -> bot -> send_tell($name, "you have been set as back. ".$msgs."");
 			}
 		}
-		else if ($msg == 3)
+		else if (($msg == 3) && ($access > 1))
 		{
 			if(!$this -> acheck($name))
 			{
