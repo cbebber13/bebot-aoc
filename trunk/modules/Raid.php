@@ -48,6 +48,7 @@ class Raid extends BaseActiveModule
 	var $announce;
 	var $start;
 	var $locked;
+	var $paused = false;
 
 
 
@@ -430,8 +431,8 @@ class Raid extends BaseActiveModule
 	*/
 	function cron()
 	{
-		if(!this->paused)
-			$this -> bot -> db -> query("Update #___raid_points SET points = points + 1 WHERE raiding = 1");
+		if(!$this -> paused)
+			$this -> bot -> db -> query("UPDATE #___raid_points SET points = points + 1 WHERE raiding = 1");
 
 		$this -> announce += 1;
 		if ($this -> announce == 10)
