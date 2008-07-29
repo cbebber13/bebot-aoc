@@ -386,7 +386,7 @@ class Whois_Core extends BasePassiveModule
 		$seen = "";
 		$alts = "";
 
-		$window = "\n ##normal##Name:##end## ##highlight##{$whois['nickname']}##end##\n";
+		$window = "\n##normal##Name:##end## ##highlight##{$whois['nickname']}##end##\n";
 
 		$window .= " ##normal##Level:##end## ##highlight##{$whois['level']}##end##\n";
 		$window .= " ##normal##Class:##end## ##highlight##{$whois['class']}##end##\n";
