@@ -278,7 +278,7 @@ class Bot
 				$port = 7015;
 				break;
 			case "Strix":
-				$server = "213.244.186.137";
+				$server = "213.244.186.136";
 				$port = 7014;
 				break;
 
