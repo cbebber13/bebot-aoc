@@ -202,7 +202,7 @@ class Bot
 		{
 			// EU Servers
 			case "Ahriman":
-				$server = "proddm07.ams.ageofconan.com";
+				$server = "proddm06.ams.ageofconan.com";
 				$port = 7021;
 				break;
 			case "Bori":
@@ -218,15 +218,15 @@ class Bot
 				$port = 7002;
 				break;
 			case "Ymir":
-				$server = "proddm01.ams.ageofconan.com";
+				$server = "proddm02.ams.ageofconan.com";
 				$port = 7003;
 				break;
 			case "Hyrkania":
-				$server = "proddm09.ams.ageofconan.com";
+				$server = "proddm06.ams.ageofconan.com";
 				$port = 7022;
 				break;
 			case "Battlescar":
-				$server = "proddm09.ams.ageofconan.com";
+				$server = "proddm06.ams.ageofconan.com";
 				$port = 7023;
 				break;
 			case "Fury":
@@ -234,7 +234,7 @@ class Bot
 				$port = 7005;
 				break;
 			case "Soulstorm":
-				$server = "proddm09.ams.ageofconan.com";
+				$server = "proddm06.ams.ageofconan.com";
 				$port = 7024;
 				break;
 			case "Wildsoul":
@@ -250,23 +250,23 @@ class Bot
 				$port = 7007;
 				break;
 			case "Corinthia":
-				$server = "62.182.240.71";
+				$server = "proddm07.ams.ageofconan.com";
 				$port = 7034;
 				break;
 
 			// Spanish Servers
 			case "Zingara":
-				$server = "proddm07.ams.ageofconan.com";
+				$server = "proddm05.ams.ageofconan.com";
 				$port = 7016;
 				break;
 			case "Indomitus":
-				$server = "62.182.240.71";
+				$server = "proddm07.ams.ageofconan.com";
 				$port = 7036;
 				break;
 
 			// French Servers
 			case "Ishtar":
-				$server = "proddm05.ams.ageofconan.com";
+				$server = "proddm04.ams.ageofconan.com";
 				$port = 7013;
 				break;
 			case "Ferox":
@@ -278,17 +278,17 @@ class Bot
 				$port = 7015;
 				break;
 			case "Strix":
-				$server = "213.244.186.136";
+				$server = "proddm04.ams.ageofconan.com";
 				$port = 7014;
 				break;
 
 			// German Servers
 			case "Asura":
-				$server = "proddm04.ams.ageofconan.com";
+				$server = "proddm03.ams.ageofconan.com";
 				$port = 7010;
 				break;
 			case "Ibis":
-				$server = "proddm06.ams.ageofconan.com";
+				$server = "proddm05.ams.ageofconan.com";
 				$port = 7018;
 				break;
 			case "Mitra":
@@ -300,7 +300,7 @@ class Bot
 				$port = 7011;
 				break;
 			case "Titus":
-				$server = "proddm07.ams.ageofconan.com";
+				$server = "proddm05.ams.ageofconan.com";
 				$port = 7019;
 				break;
 			case "Asgard":
