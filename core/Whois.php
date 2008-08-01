@@ -118,7 +118,20 @@ class Whois_Core extends BasePassiveModule
 		$who = array();
 		$who["id"] = $user;
 		$who["nickname"] = $name;
-		$who["online"] = $online;
+		if(!array_key_exists($user, $this -> bot -> buddy_status))
+			$who["online"] = 0;
+		else
+		{
+			if(4 == ($this -> bot -> buddy_status[$user] & 4))
+				$who["online"] = 3;
+			else if(2 == ($this -> bot -> buddy_status[$user] & 2))
+				$who["online"] = 2;
+			else if(1 == ($this -> bot -> buddy_status[$user] & 1))
+				$who["online"] = 1;
+			else
+			$who["online"] = 0;
+		}
+
 		$who["level"] = $level;
 		$who["location"] = $location;
 		$class_name = $this -> class_name[$class];
