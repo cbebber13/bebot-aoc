@@ -139,7 +139,7 @@ class Bot
 	private $cron_actived;
 	private $cron;
 	private $startup_time;
-	private $buddy_status = array();
+	public $buddy_status = array();
 	public $glob;
 	public $botname;
 
