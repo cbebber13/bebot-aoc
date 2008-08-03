@@ -129,7 +129,7 @@ class Whois_Core extends BasePassiveModule
 			else if(1 == ($this -> bot -> buddy_status[$user] & 1))
 				$who["online"] = 1;
 			else
-			$who["online"] = 0;
+				$who["online"] = 0;
 		}
 
 		$who["level"] = $level;
@@ -409,11 +409,11 @@ class Whois_Core extends BasePassiveModule
 			$window .= " ##normal##Craft Class 1:##end## ##highlight##{$whois['craft1']}##end##\n";
 		}
 		if(!empty($whois['craft2']))
-                {
+		{
 			$window .= " ##normal##Craft Class 2:##end## ##highlight##{$whois['craft2']}##end##\n";
 		}
 
-		if(!$whois['online'])
+		if(0 == $whois['online'])
 		{
 			$window .= " Last Online: ##highlight##".date("Y-m-d h:i",$whois['location'])."##end##\n";
 		}
@@ -432,7 +432,7 @@ class Whois_Core extends BasePassiveModule
 				$window .= " ($access)";
 
 			$window .= " ##end####end##\n\n";
-        }
+		}
 
 
 		$online = $this -> bot -> core("online") -> get_online_state($whois['nickname']);
@@ -541,6 +541,5 @@ class Whois_Core extends BasePassiveModule
 
 		return ($this -> bot -> core("tools") -> make_blob("Details", $window));
 	}
-
 }
 ?>
