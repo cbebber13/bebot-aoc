@@ -4,7 +4,7 @@ abstract class BaseActiveModule extends BasePassiveModule
 {
 	public $help; //A window containing help text for this module
 	protected $source;
-	
+
 	function __construct (&$bot, $module_name)
 	{
 		//Save reference to bot
@@ -13,7 +13,7 @@ abstract class BaseActiveModule extends BasePassiveModule
 
 	// Prototype for the command_handler
 	abstract protected function command_handler($name, $msg, $origin);
-	
+
 	// Interface to register command. Now with checks for duplicate command definitions.
 	// $channel is the channel the command should be registered for. "all" can be used to register a command for gc, pgmsg and tell at once.
 	// $command is the command to register.
@@ -35,7 +35,7 @@ abstract class BaseActiveModule extends BasePassiveModule
 				{
 					foreach ($subcommands AS $subcommand => $subacl)
 					{
-						$this -> bot -> core("access_control") -> create_subcommand($channel, $command, $subcommand, $subacl); 
+						$this -> bot -> core("access_control") -> create_subcommand($channel, $command, $subcommand, $subacl);
 					}
 				}
 			}
@@ -81,35 +81,30 @@ abstract class BaseActiveModule extends BasePassiveModule
 	protected function parse_com($command, $pattern = array('com', 'sub', 'args'))
 	{
 		//preg_match for items and insert a replacement.
-		$search_pattern='|<a href="itemref://([0-9]+)/([0-9]+)/([0-9]{1,3})">([^<]+)</a>|';
-		$item_count = preg_match_all($search_pattern, $command, $items, PREG_SET_ORDER);
+		$item_count = preg_match_all('/'.$this -> bot -> core('items') -> itemPattern .'/i', $command, $items, PREG_SET_ORDER);
 		for($cnt = 0; $cnt < $item_count; $cnt++)
-		{
-			$command = preg_replace($search_pattern, "##item_$cnt##", $command, 1);
-		}
-		
+			$command = preg_replace('/'.$this -> bot -> core('items') -> itemPattern .'/i', "##item_$cnt##", $command, 1);
+
 		//Split the command
 		$num_pieces=count($pattern);
 		$num_com=count(explode(' ', $command));
 		$pieces = explode(' ', $command, $num_pieces);
 		$com = array_combine(array_slice($pattern, 0, $num_com), $pieces);
-		
+
 		//Replace any item references with the original item strings.
 		foreach($com as &$com_item)
 		{
 			for($cnt = 0; $cnt < $item_count; $cnt++)
-			{
 				$com_item=str_replace("##item_$cnt##", $items[$cnt][0], $com_item);
-			}
 		}
 		unset($com_item);
 		return ($com);
 	}
-	
+
 	/************************************************************************
 	 Default to replying in the same channel as the command has been recieved
 	*************************************************************************/
-	
+
 	public function reply($name, $msg)
 	{
 		if ($msg != false)

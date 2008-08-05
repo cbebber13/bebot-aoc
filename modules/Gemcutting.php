@@ -2,7 +2,7 @@
 /*
 * Gemcutting helper module v1.0, By Noer
 * This module helps people with identifying gems and how to cut gems.
-* Further developed by Varka. 
+* Further developed by Varka.
 *
 *
 */
@@ -13,7 +13,7 @@ class Gemcut extends BaseActiveModule {
   var $gem_types = array();
   var $gem_array = array();
   var $tier_info = array();
-  
+
   function __construct(&$bot) {
     parent::__construct(&$bot, get_class($this));
 
@@ -31,7 +31,7 @@ class Gemcut extends BaseActiveModule {
     $this->help['command']['gemcut <tier>'] = "Displays a list of gems for the specified tier.";
 
     // Do this in the constructor so run-time speed is improved.
-    
+
     // This array is the most easy to edit. It is then used to build another structure for lookups
     //         Colour                        // Tier 1       // Tier 2       // Tier 3     // Tier 4       // Tier 5     // Tier 6
     $this->gem_types["black"]  = array(array("Obsidian",     "Onyx",         "Jet",        "Black Jasper", "Nightstar",  "Black Diamond"));
@@ -179,89 +179,100 @@ class Gemcut extends BaseActiveModule {
     }
   }
 
-  /* Identifies a gem. */
-  function identify($msg) {
-    if (preg_match("/.*<a style=\"text-decoration:none\" href=\"itemref:\/\/([0-9]*)\/([0-9]*)\/([0-9]*)\/([0-9a-f]*\:[0-9a-f]*\:[0-9a-f]*:[0-9a-f]*)\/([0-9a-f]*\:[0-9a-f]*\:[0-9a-f]*:[0-9a-f]*)\"><font[^>]+>\[(.*)\]<\/font>.*/i",$msg,$matches)) {
-      $lowid          = $matches[1];
-      $highid         = $matches[2];
-      $ql             = $matches[3];
-      $lowcrc         = $matches[4];
-      $highcrc        = $matches[5];
-      $name           = $matches[6];
-      preg_match("/(Flawless|Uncut)\s(.*)/", $name, $matches);
+	/* Identifies a gem. */
+	function identify($msg)
+	{
+		$items = $this -> bot -> core('items') -> parse_items($msg);
 
-      if ($matches[1] == "Flawless") {
-        $rare = true;
-      } else {
-        $rare = false;
-      }
+		if(empty($items))
+			return false;
 
-      $gem_info = $this->gem_array[$matches[2]];
-      if (count($gem_info) == 2) {
-        $tier = $gem_info[0];
-        $type = $gem_info[1];
-      } else {
-        $tier = 0;
-        $type = 'unknown';
-      }
+		$txt = '';
 
-      if (($type != "unknown") && ($tier != 0)) {
-        $txt = "##gemcut_normal##";
-        if ($rare) {
-          $txt .= "Quality: ##gemcut_highlight##Rare : Trillion/Teardrop/Cabochon (fits in size 2 sockets - shape 10)##end##\n";
-        } else {
-          $txt .= "Quality: ##gemcut_highlight##Common : Rhombic/Oval/Oblique (fits in size 1 sockets - shape 5)##end##\n";
-        }
+		foreach ($items as $item)
+		{
+			$result = $this -> bot -> core('items') -> submit_item($item, $name);
 
-        $txt .= "Tier: ##gemcut_highlight##".$tier." (lvl ".(($tier+3)*10).")##end##\n";
-        $txt .= "Effects: ##gemcut_highlight##";
+			preg_match("/(Flawless|Uncut)\s(.*)/", $item['name'], $matches);
 
-        switch ($type) {
-          case "black":
-            $txt .= "Unholy dmg / Unholy dd / Poison dmg / Poison dd";
-            break;
-          case "blue":
-            $txt .= "Tap mana / Tap stamina / Tap health / Cold dmg / Cold dd / Wisdom / Intelligence";
-            break;
-          case "green":
-            $txt .= "Fatality / Dexterity / Melee dmg / Pierce dmg / Crushing immune / Pierce immune / Slashing immune / Tap stamina / Bow dmg";
-            break;
-          case "orange":
-            $txt .= "Fire dmg / Fire DD / Cold Immunity";
-            break;
-          case "purple":
-            $txt .= "Hate / Taunt / Magic immunities";
-            break;
-          case "red":
-            $txt .= "Crushing dmg / Slashing dmg / Tap health / Strength / Stamina + melee immunities / Holy dmg";
-            break;
-          case "white":
-            $txt .= "Electrical dmg / Electrical dd / Electrical Immunity / Perception";
-            break;
-          case "yellow":
-            $txt .= "Magic dmg / Holy dmg / Holy dd / Poison immunity / Unholy immunity";
-            break;
-        }
-        $txt .= "##end##\n\n##gemcut_info##The gem effect is randomly determined when the gem is cut.##end##\n\n";
+			if($matches[1] == "Flawless")
+				$rare = true;
+			else
+				$rare = false;
 
-        if ($rare) {
-          $txt .= "Shapes: ##gemcut_highlight##Trillion(1 handed), Teardrop(2 handed) and Cabochon(Armor). Can be used in blue crafted armor and weapons .##end##\n\n";
-        } else {
-          $txt .= "Shapes: ##gemcut_highlight##Rhombic(1 handed), Oval(2 handed) and Oblique(Armor). Can be used in green crafted armor and weapons.##end##\n\n";
-        }
+			$gem_info = $this->gem_array[$matches[2]];
+			if (count($gem_info) == 2)
+			{
+				$tier = $gem_info[0];
+				$type = $gem_info[1];
+			}
+			else
+			{
+				$tier = 0;
+				$type = 'unknown';
+			}
 
-        $txt .= "##gemcut_info##Socketing:\n";
-        $txt .= "- Make sure both the item and the gem are in your inventory and NOT equipped.\n";
-        $txt .= "- Select the gem, the items that the gem can be added to will be surrounded with a green border.\n";
-        $txt .= "- Drag and drop the gem onto the selected item.##end##";
-        $txt .= "##end##";
+			if (($type != "unknown") && ($tier != 0))
+			{
+				$txt .= $item['name']."\n\n";
+				$txt .= "##gemcut_normal##";
+				if ($rare)
+					$txt .= "Quality: ##gemcut_highlight##Rare : Trillion/Teardrop/Cabochon (fits in size 2 sockets - shape 10)##end##\n";
+				else
+					$txt .= "Quality: ##gemcut_highlight##Common : Rhombic/Oval/Oblique (fits in size 1 sockets - shape 5)##end##\n";
 
-        return "Result: " . $this->bot->core("tools")->make_blob("identification", $txt);
-      } else {
-        return "The gem could not be identified.";
-      }
-    }
-  }
+				$txt .= "Tier: ##gemcut_highlight##".$tier." (lvl ".(($tier+3)*10).")##end##\n";
+				$txt .= "Effects: ##gemcut_highlight##";
+
+				switch ($type)
+				{
+					case "black":
+						$txt .= "Unholy dmg / Unholy dd / Poison dmg / Poison dd";
+						break;
+					case "blue":
+						$txt .= "Tap mana / Tap stamina / Tap health / Cold dmg / Cold dd / Wisdom / Intelligence";
+						break;
+					case "green":
+						$txt .= "Fatality / Dexterity / Melee dmg / Pierce dmg / Crushing immune / Pierce immune / Slashing immune / Tap stamina / Bow dmg";
+						break;
+					case "orange":
+						$txt .= "Fire dmg / Fire DD / Cold Immunity";
+						break;
+					case "purple":
+						$txt .= "Hate / Taunt / Magic immunities";
+						break;
+					case "red":
+						$txt .= "Crushing dmg / Slashing dmg / Tap health / Strength / Stamina + melee immunities / Holy dmg";
+						break;
+					case "white":
+						$txt .= "Electrical dmg / Electrical dd / Electrical Immunity / Perception";
+						break;
+					case "yellow":
+						$txt .= "Magic dmg / Holy dmg / Holy dd / Poison immunity / Unholy immunity";
+						break;
+				}
+				$txt .= "##end##\n\n##gemcut_info##The gem effect is randomly determined when the gem is cut.##end##\n\n";
+
+				if ($rare)
+					$txt .= "Shapes: ##gemcut_highlight##Trillion(1 handed), Teardrop(2 handed) and Cabochon(Armor). Can be used in blue crafted armor and weapons .##end##\n\n";
+				else
+					$txt .= "Shapes: ##gemcut_highlight##Rhombic(1 handed), Oval(2 handed) and Oblique(Armor). Can be used in green crafted armor and weapons.##end##\n\n";
+				$txt .= "\n\n";
+			}
+		}
+
+		if(empty($txt))
+			return "The gem could not be identified.";
+		else
+		{
+			$txt .= "##gemcut_info##Socketing:\n";
+			$txt .= "- Make sure both the item and the gem are in your inventory and NOT equipped.\n";
+			$txt .= "- Select the gem, the items that the gem can be added to will be surrounded with a green border.\n";
+			$txt .= "- Drag and drop the gem onto the selected item.##end##";
+			$txt .= "##end##";
+			return "Result: " . $this->bot->core("tools")->make_blob("identification", $txt);
+		}
+	}
 
   function gemtiers($msg) {
     switch ($msg) {
@@ -362,7 +373,7 @@ class Gemcut extends BaseActiveModule {
       $info   = $line[1];
       $effect = $line[2];
       list($prefix, $cut_1h, $cut_2h, $cut_arm, $rarity, $min, $max) = split(":", $info);
-      
+
       if ($is_rare) {
         if ($rarity == 2 || $rarity == 1) {
           $text .= "##gemcut_info##$prefix##end## ##gemcut_highlight##:##end## ";
