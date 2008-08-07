@@ -65,12 +65,6 @@ class Items_Core extends BasePassiveModule
 			$item['name']    = $match[8];
 			$items[] = $item;
 		}
-
-		if(empty($items))
-		{
-			$this->error->set("Unable to parse items: '$itemText'");
-			return($this->error);
-		}
 		return $items;
 	}
 
