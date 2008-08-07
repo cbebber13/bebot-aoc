@@ -50,7 +50,14 @@ class Items extends BaseActiveModule
 		{
 			$words = trim(substr($msg, strlen('item')));
 			if (!empty($words))
-				$this->submit($words,$origin,$name);
+			{
+				$result = $this->submit($words,$origin,$name);
+				if(false === $result && $group == "tell")
+				{
+					$output = "There is no item reference in your item registration.";
+					$this -> bot -> send_output($name, $output, $group);
+				}
+			}
 			else
 				return "Usage: itemreg [itemref]";
 		}
@@ -83,22 +90,14 @@ class Items extends BaseActiveModule
 		$items = $this -> bot -> core('items') -> parse_items($msg);
 
 		if(empty($items))
-		{
-			if($group == "tell")
-				$output = "There is no item reference in your item registration.";
-			else
-				$output = '';
+			return false;
 
-			$this -> bot -> send_output($name, $output, $group);
-			return;
-		}
+		if ($group == "org")
+			$group = "gc";
 
 		foreach ($items as $item)
 		{
 			$result = $this -> bot -> core('items') -> submit_item($item, $name);
-
-			if ($group == "org")
-				$group = "gc";
 
 			if (($result['content'] == "0") && ($group == "tell"))
 			{
@@ -116,6 +115,7 @@ class Items extends BaseActiveModule
 				$this -> bot -> send_output($name, $output, $group);
 			}
 		}
+		return true;
 	}
 }
 ?>
