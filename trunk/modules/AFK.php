@@ -206,7 +206,7 @@ Class AFK extends BaseActiveModule
 			{
 				$this -> back($name);
 				$msgs = $this -> msgs($name);
-				$this -> bot -> send_tell($name, "you have been set as back. ".$msgs."");
+//				$this -> bot -> send_tell($name, "you have been set as back. ".$msgs."");
 			}
 		}
 		else if (($msg == 3) && ($access > 1))
@@ -215,7 +215,7 @@ Class AFK extends BaseActiveModule
 			{
 				$this -> gone($name);
 				$msgs = $this -> msgs($name);
-				$this -> bot -> send_tell($name, "you have been set as AFK. ".$msgs."");
+//				$this -> bot -> send_tell($name, "you have been set as AFK. ".$msgs."");
 			}
 		}
 	}
