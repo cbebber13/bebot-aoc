@@ -20,7 +20,7 @@ class craftclasses Extends BaseActiveModule
 
 	var $last_log;
 	var $start;
-	
+
 	// Constructor
 	function __construct (&$bot)
 	{
@@ -52,7 +52,7 @@ class craftclasses Extends BaseActiveModule
 
 		$this -> bot -> core("settings") -> create("Craftclasses", "Remind", TRUE, "Should users level 40+ be reminded to set their craft classes?");
 	}
-	
+
 	function command_handler($name, $msg, $origin)
 	{
 		$output = "";
@@ -98,9 +98,9 @@ class craftclasses Extends BaseActiveModule
 	function buddy($name, $online, $level, $location)
 	{
 		if ($this -> bot -> core("notify") -> check($name) && $this -> bot -> core("settings") -> get("Craftclasses", "Remind"))
-		{			
+		{
 			$id = $this -> bot -> core("chat") -> get_uid($name);
-			if ($msg == 1)
+			if ($online == 1)
 			{
 				if ($this -> last_log["on"][$name] < (time() - 5))
 				{
