@@ -951,7 +951,7 @@ class Bot
 	*/
 	function inc_tell($args)
 	{
-		if (!preg_match("/is AFK .Away from keyboard./i", $args[1]) && !preg_match("/.tell (.+)help/i",$args[1]) && !preg_match("/I only listen to members of this bot/i",$args[1] ))
+		if (4 == ($this -> buddy_status[$args[0]] | 4) &&!preg_match("/Away from keyboard./i", $args[1]) && !preg_match("/.tell (.+)help/i",$args[1]) && !preg_match("/I only listen to members of this bot/i",$args[1] ))
 		{
 			$user = $this -> core("chat") -> get_uname($args[0]);
 			$found = false;
